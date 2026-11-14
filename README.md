@@ -241,6 +241,39 @@ Al ejecutar `node cliente_mcp.mjs`, se analizaron las respuestas recibidas para 
 
 ---
 
+### 4. Diagrama de Secuencia de la Sesión Completa (Mermaid)
+
+El siguiente diagrama representa visualmente la sesión completa de `cliente_mcp.mjs`, dividida en sus tres fases, con los 13 mensajes ordenados y la indicación explícita de los dos tipos de errores recibidos:
+
+```mermaid
+sequenceDiagram
+participant C as Cliente
+participant S as Servidor
+
+Note over C,S: Inicialización
+C->>S: initialize (id 1)
+S-->>C: result con version, capacidades e identidad (id 1)
+C-)S: notifications/initialized
+
+Note over C,S: Operación
+C->>S: tools/list (id 2)
+S-->>C: result con catalogo de 16 herramientas (id 2)
+C->>S: tools/call: list_directory "datos" (id 3)
+S-->>C: result con "[FILE] calificaciones.csv" (id 3)
+C->>S: tools/call: read_text_file "datos/calificaciones.csv" (id 4)
+S-->>C: result con contenido de calificaciones.csv (id 4)
+C->>S: tools/call: read_text_file "C:/Windows/win.ini" (id 5)
+S-->>C: [ERROR DE APLICACION / SANDBOX] isError: true (id 5)
+C->>S: herramientas/inventada (id 6)
+S-->>C: [ERROR PROTOCOLO JSON-RPC] code -32601 Method not found (id 6)
+
+Note over C,S: Cierre
+C->>S: Cierre de flujo stdin (servidor.stdin.end)
+Note over S: El servidor finaliza su ejecucion limpiamente
+```
+
+---
+
 ## Actividad 4 (Actividad D): Comparación entre Inspector y Cliente Mínimo
 
 A partir de los archivos de registro [salida/historial_inspector.json](salida/historial_inspector.json) y [salida/traza.jsonl](salida/traza.jsonl), se compararon las fases de inicialización y negociación de capacidades de ambos clientes:
